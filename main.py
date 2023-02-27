@@ -1,6 +1,6 @@
 import pygame, sys, json
 from style import *
-# from hangman import *
+from hangman import main as hangman
 from button import BUTTON
 
 # Functions 
@@ -48,6 +48,53 @@ def def_user():
         clock.tick(60)
 
         write_text(word, 40, 300, 300) 
+
+def add_word():
+     #PYGAME
+    pygame.init()
+    newword=""
+    # window parameter
+    WIDTH, HEIGHT = 600, 600
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen.fill(pygame.Color(PURPLE))
+
+    write_text("Enter a word: ", 60, 300, 100) #example asking name
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    newword = newword[:-1]
+                    write_text("        ",80, 300, 300)
+                if event.unicode.isalpha():
+                    newword += event.unicode.upper()
+                
+                if event.key == pygame.K_RETURN:
+                    save_word(newword)
+                    main()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if menu_button.is_over(pygame.mouse.get_pos()):
+                    main()
+        write_text(newword, 40, 300, 300) 
+
+        # timer and FPS
+        pygame.display.update()
+        clock.tick(60)
+        menu_button.draw(screen)
+
+
+def save_word(newword):
+    with open("words.txt", "r") as file:
+        data = file.read()
+
+    if newword not in data:
+        data += "\n" + newword
+
+    with open("words.txt", "w") as file:
+        file.write(data)
+
 
 menu_button = BUTTON(WHITE, 200 ,500, 200, 60, "Back")
 
@@ -122,7 +169,9 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                     if play_button.is_over(pygame.mouse.get_pos()):
                         username = def_user()
-                        # hangman()
+                        hangman(username)
+                    if add_word_button.is_over(pygame.mouse.get_pos()):
+                        add_word()
                     if scoreboard_button.is_over(pygame.mouse.get_pos()):
                         scoreboard()
                     if exit_button.is_over(pygame.mouse.get_pos()):
